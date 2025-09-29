@@ -68,7 +68,12 @@ fn handle_client(mut stream: TcpStream, clients: Arc<Mutex<Vec<TcpStream>>>){
 fn remove_client(client_addr: SocketAddr, clients: Arc<Mutex<Vec<TcpStream>>>){
     let mut clients_guard = clients.lock().unwrap();
     clients_guard.retain(|client|{
-        client.peer_addr().unwrap() != client_addr
+        if let Ok(addr) = client.peer_addr(){
+            addr != client_addr
+        }else{
+            // Can't get address, return false
+            false
+        }
     });
     println!("Removed client with addr: {}", client_addr);
 }
